@@ -33,13 +33,19 @@ docker compose up -d
 
 `docker-compose.yml` pulls `ghcr.io/matthiaslubbertsen/api:latest` (built by GitHub Actions on every push to `main` and on `v*` tags). To build locally, swap `image:` for the commented `build:` block. Data lives in `./storage` next to the compose file (a bind mount), so the host folder **must be writable by UID 1000**.
 
-## Add an API
+## Add an API (no rebuild)
 
-1. Create `routes/<apiname>/` (lowercase letters and digits only, e.g. `routes/billing/`). The server refuses to start otherwise.
-2. Add routes as `<name>.<method>.js`, e.g. `routes/billing/invoices.get.js` -> `GET /billing/invoices`.
-3. Optional: add SQL migrations in `migrations/<apiname>/001_init.sql`. They run once, in order, on startup.
+APIs live in the `routes/` folder next to the app (in Docker: `./routes` on the host, mounted to `/app/routes`). Nothing in this repo is an API. Changes apply on the next request.
+
+1. Create `routes/<apiname>/` (lowercase letters and digits only, e.g. `routes/billing/`).
+2. Add routes as `<name>.<method>.js`, e.g. `routes/billing/invoices.get.js` -> `GET /billing/invoices`. Dynamic segments: `routes/billing/items/[id].get.js` -> `GET /billing/items/:id`.
+3. Optional: npm packages for your APIs: `cd routes && npm install <package>`.
 4. Add its env vars to `.env` as `NITRO_<APINAME>_<VAR>`.
 5. Use `useApiDb`, `useApiKv`, `useApiFiles` and `defineApiCachedHandler` from `#plof`.
+
+Mounted APIs do not run migrations. Create their tables yourself.
+
+`routes/` is git-ignored, so your APIs stay out of this repo.
 
 ## Env var naming
 
