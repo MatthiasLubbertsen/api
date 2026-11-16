@@ -1,16 +1,15 @@
-// Mounted APIs: serve routes from a folder on disk at runtime, so new endpoints
-// do not need a rebuild or a new image. Only used when ROUTES_DIR is set.
+// Mounted APIs: serve routes from the routes/ folder next to the app, read at request time.
+// No rebuild or new image needed to add or change an API.
 //
-//   ROUTES_DIR=./local-routes
-//   local-routes/<api>/<path>.<method>.js   ->  <METHOD> /<api>/<path>
-//   local-routes/<api>/items/[id].get.js    ->  GET /<api>/items/:id
+//   routes/<api>/<path>.<method>.js          ->  <METHOD> /<api>/<path>
+//   routes/<api>/items/[id].get.js           ->  GET /<api>/items/:id
 //
-// Same rules as routes/: the folder name is the API name, env vars come from
-// NITRO_<API>_<VAR>, and useApiKv/useApiFiles/useApiDb work. Files are loaded with jiti
-// and re-read when they change. Bundled routes/ always win over mounted ones.
+// The folder name is the API name, env vars come from NITRO_<API>_<VAR>, and
+// useApiKv/useApiFiles/useApiDb work. Files are loaded with jiti and re-read when they
+// change. Bundled routes always win over mounted ones (there are none in this repo).
 //
 // Mounted handlers can import "nitro", "nitro/h3" and "#plof" (the same instances the
-// server uses). Other npm packages are not available to them.
+// server uses), and npm packages installed in routes/ (run npm install there).
 import { readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { defineHandler, HTTPError } from "nitro";
@@ -99,9 +98,9 @@ async function loadHandler(file) {
 }
 
 export default defineHandler(async (event) => {
-  const root = process.env.ROUTES_DIR ? resolve(process.env.ROUTES_DIR) : null;
+  const root = resolve(process.cwd(), "routes");
   const notFound = () => new HTTPError({ status: 404, message: "Not found" });
-  if (!root || !isDir(root)) throw notFound();
+  if (!isDir(root)) throw notFound();
 
   const segments = event.url.pathname.split("/").slice(1).filter((s) => s !== "");
   const decoded = segments.map(decodeSegment);
