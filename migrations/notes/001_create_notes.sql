@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS notes (
-  id VARCHAR(36) PRIMARY KEY,
-  text TEXT NOT NULL,
-  created_at VARCHAR(32) NOT NULL
-);

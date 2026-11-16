@@ -35,11 +35,14 @@ docker compose up -d
 
 ## Add an API
 
-1. Create `routes/<apiname>/` (lowercase letters and digits only, e.g. `routes/billing/`). The server refuses to start otherwise.
-2. Add routes as `<name>.<method>.js`, e.g. `routes/billing/invoices.get.js` -> `GET /billing/invoices`.
-3. Optional: add SQL migrations in `migrations/<apiname>/001_init.sql`. They run once, in order, on startup.
-4. Add its env vars to `.env` as `NITRO_<APINAME>_<VAR>`.
-5. Use `useApiDb`, `useApiKv`, `useApiFiles` and `defineApiCachedHandler` from `#plof`.
+APIs live in `ROUTES_DIR` (`local-routes/` in Docker), not in this repo. No rebuild or new image needed:
+
+1. Create `local-routes/<apiname>/` (lowercase letters and digits only, e.g. `local-routes/billing/`).
+2. Add routes as `<name>.<method>.js`, e.g. `local-routes/billing/invoices.get.js` -> `GET /billing/invoices`.
+3. Add its env vars to `.env` as `NITRO_<APINAME>_<VAR>`.
+4. Use `useApiDb`, `useApiKv`, `useApiFiles` and `defineApiCachedHandler` from `#plof`.
+
+Mounted APIs do not run migrations. Create their tables yourself.
 
 ## Mounted APIs (no rebuild)
 
