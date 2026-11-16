@@ -55,7 +55,13 @@ export default defineConfig({
   database: {
     default: { connector: "node-sqlite", options: { path: "./storage/_nitro/db.sqlite" } },
   },
-  ignore: ["plof/**", "migrations/**", "storage/**"],
+  ignore: ["plof/**", "migrations/**", "storage/**", "local-routes/**"],
+  handlers: [
+    // GET / -> { "status": "ok" }
+    { route: "/", handler: "./plof/health.js" },
+    // Anything no bundled route matched: try APIs mounted from ROUTES_DIR (see plof/mount.js).
+    { route: "/**", handler: "./plof/mount.js" },
+  ],
   virtual: {
     "#plof/manifest": () =>
       `export const apis = ${JSON.stringify(apis)};\n` +

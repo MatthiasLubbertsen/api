@@ -41,6 +41,19 @@ docker compose up -d
 4. Add its env vars to `.env` as `NITRO_<APINAME>_<VAR>`.
 5. Use `useApiDb`, `useApiKv`, `useApiFiles` and `defineApiCachedHandler` from `#plof`.
 
+## Mounted APIs (no rebuild)
+
+Routes in `routes/` are bundled into the build. To add an API without a PR, rebuild or a new image, put it in a folder that `ROUTES_DIR` points at:
+
+```
+local-routes/billing/invoices.get.js     ->  GET  /billing/invoices
+local-routes/billing/items/[id].get.js   ->  GET  /billing/items/:id
+```
+
+Same rules as `routes/`: the folder name is the API name, env vars are `NITRO_<APINAME>_<VAR>`, and `useApiKv`, `useApiFiles` and `useApiDb` work. Files are re-read when they change. Mounted handlers can import `nitro`, `nitro/h3` and `#plof`, but not other npm packages, and they do not get migrations from `migrations/`. If a bundled route has the same path, the bundled one wins.
+
+`local-routes/` is git-ignored. Docker mounts it read-only into the container; outside Docker, set `ROUTES_DIR=./local-routes`.
+
 ## Env var naming
 
 `NITRO_<APINAME>_<VAR>` is visible as `process.env.<VAR>`, only inside requests to that API:

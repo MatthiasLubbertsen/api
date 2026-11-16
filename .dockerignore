@@ -6,3 +6,4 @@ storage
 .git
 .github
 *.log
+local-routes

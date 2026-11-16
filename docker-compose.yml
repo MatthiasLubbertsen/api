@@ -8,10 +8,13 @@ services:
     env_file: .env
     environment:
       PORT: "3000" # container port; change the host side with HOST_PORT
+      ROUTES_DIR: /app/local-routes # mounted APIs, read at request time (no rebuild needed)
     ports:
       - "${HOST_PORT:-3000}:3000"
     volumes:
       # Bind mount: data lives in ./storage next to this file.
       # The folder must be writable by UID 1000:  mkdir -p storage && sudo chown 1000:1000 storage
       - ./storage:/app/storage
+      # Mounted APIs: edit files here, they are picked up on the next request.
+      - ./local-routes:/app/local-routes:ro
     restart: unless-stopped
