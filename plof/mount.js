@@ -66,7 +66,8 @@ function resolveRoute(dir, segs, method, params = {}) {
 /** Decode one URL segment. Rejects anything that could escape the routes folder. */
 function decodeSegment(raw) {
   const s = decodeURIComponent(raw);
-  if (s === "" || s.startsWith(".") || /[/\\0]/.test(s)) return null;
+  if (s === "" || s.startsWith(".")) return null;
+  if (s.includes("/") || s.includes("\\") || s.includes(String.fromCharCode(0))) return null;
   return s;
 }
 
